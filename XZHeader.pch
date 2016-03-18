@@ -1,0 +1,16 @@
+//
+//  XZHeader.pch
+//  tu_bar
+//
+//  Created by 肖准 on 15/10/27.
+//  Copyright © 2015年 肖准. All rights reserved.
+//
+
+#ifndef XZHeader_pch
+#define XZHeader_pch
+
+// Include any system framework and library headers here that should be included in all compilation units.
+// You will also need to set the Prefix Header build setting of one or more of your targets to reference this file.
+
+#endif /* XZHeader_pch */
+#import "Public.h"

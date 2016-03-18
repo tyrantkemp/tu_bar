@@ -1,0 +1,33 @@
+
+/* Class = "UITabBarItem"; title = "发现"; ObjectID = "0IV-Wk-Ijg"; */
+"0IV-Wk-Ijg.title" = "发现";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "0Z3-ba-jkS"; */
+"0Z3-ba-jkS.text" = "Label";
+
+/* Class = "UITabBarItem"; title = "我的"; ObjectID = "RMb-aP-GN7"; */
+"RMb-aP-GN7.title" = "我的";
+
+/* Class = "UISegmentedControl"; RNu-9F-eMP.segmentTitles[0] = "日"; ObjectID = "RNu-9F-eMP"; */
+"RNu-9F-eMP.segmentTitles[0]" = "日";
+
+/* Class = "UISegmentedControl"; RNu-9F-eMP.segmentTitles[1] = "月"; ObjectID = "RNu-9F-eMP"; */
+"RNu-9F-eMP.segmentTitles[1]" = "月";
+
+/* Class = "UISegmentedControl"; RNu-9F-eMP.segmentTitles[2] = "年"; ObjectID = "RNu-9F-eMP"; */
+"RNu-9F-eMP.segmentTitles[2]" = "年";
+
+/* Class = "UIButton"; normalTitle = "新建相册"; ObjectID = "T31-Nm-POr"; */
+"T31-Nm-POr.normalTitle" = "新建相册";
+
+/* Class = "UITabBarItem"; title = "上传"; ObjectID = "Zy4-hK-mOl"; */
+"Zy4-hK-mOl.title" = "上传";
+
+/* Class = "UINavigationItem"; title = "我的"; ObjectID = "cSJ-Hw-wLF"; */
+"cSJ-Hw-wLF.title" = "我的";
+
+/* Class = "UINavigationItem"; title = "上传"; ObjectID = "dV9-J2-65g"; */
+"dV9-J2-65g.title" = "上传";
+
+/* Class = "UILabel"; text = "Label"; ObjectID = "gWe-7E-NOA"; */
+"gWe-7E-NOA.text" = "Label";
