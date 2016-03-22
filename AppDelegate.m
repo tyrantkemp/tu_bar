@@ -75,7 +75,7 @@ static BOOL RYLogin = false;
     NSLog(@"user=%@,pwd=%@",username,pwd);
     LoginViewController* login =[[LoginViewController alloc]init];
     if(ISDEBUG==1){
-        [Utils getAllAlbums];
+        [Utils getDefaultAlbumArrs];
          NSString* albumjsonstr = [Utils getAlbumInfoFromServerByUserName:username];
        // [Utils UserDefaultSetValue:albumjsonstr forKey:USER_ALBUMS];
         self.window.rootViewController=login;
@@ -93,7 +93,7 @@ static BOOL RYLogin = false;
 //            [login presentViewController:drawer animated:NO completion:nil];
             NSLog(@"登陆成功");
             //创建默认相册
-            [Utils getAllAlbums];
+            [Utils getDefaultAlbumArrs];
 
             NSString* albumjsonstr = [Utils getAlbumInfoFromServerByUserName:username];
            // [Utils UserDefaultSetValue:albumjsonstr forKey:USER_ALBUMS];

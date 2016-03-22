@@ -167,7 +167,7 @@
     
 }
 #pragma mark - 程序初始化时 根据username获取相册信息 （1.先从服务器获取，如果服务器没有则检查本地，如果本地也没有则创建默认相册）
-+(AlbumArr*)getAlbumInfoFromServerByUserName:(NSString*)username{
++(photoAlbumArr*)getAlbumInfoFromServerByUserName:(NSString*)username{
     //用户登录时同步获取
     // NSUserDefaults* userd= [NSUserDefaults standardUserDefaults];
     // [userd removeObjectForKey:USER_ALBUMS];
@@ -187,16 +187,23 @@
     }else{//远程服务器没有相册信息
         NSLog(@"远程相册信息为空");
         if([Utils UserDefaultGetValueByKey:USER_ALBUMS]==nil){
-            resstr = [[Utils getAllAlbums] toJSONString];
+            
+            NSString * jsondata = [NSJSONSerialization JSONObjectWithData:[Utils getDefaultAlbumArrs] options:NSJSONReadingMutableLeaves error:nil];
+            NSLog(@"本地相册信息为空,添加默认信息：%@",jsondata);
+            
+          //  resstr = [[Utils getDefaultAlbumArrs] to];
             [Utils UserDefaultSetValue:resstr forKey:USER_ALBUMS];
-            NSLog(@"本地相册信息为空,添加默认信息：%@",resstr);
             
         }else{
             resstr = [Utils UserDefaultGetValueByKey:USER_ALBUMS];
             NSLog(@"本地相册存在：%@",resstr);
         }
+        
+        NSData* data = [NSJSONSerialization dataWithJSONObject:resstr options:NSJSONWritingPrettyPrinted error:nil];
+        
         //本地相册信息异步上传至服务器
-        AlbumArr* ar=[[AlbumArr alloc]initWithString:resstr error:nil];
+        //AlbumArr* ar=[[AlbumArr alloc]initWithString:resstr error:nil];
+        photoAlbumArr* ar = [[photoAlbumArr alloc]initWithValue:data];
         [Utils uploadAlbumInfo:ar user:username];
         
         
@@ -560,19 +567,40 @@
 }
 
 
-#pragma mark - 获取/创建(默认)个人相册
-+(AlbumArr*)getAllAlbums{
-    Album* al = [[Album alloc]init];
-    al.holderimgid = @"44A3762B66A4B5F1BB51533A00B96114";
-    al.albumname=@"默认相册";
-    AlbumArr  * alarr = [[AlbumArr alloc]init];
-    [alarr.albarr addObject:al];
-    return  alarr;
-}
+#pragma mark - 获取/创建(默认)个人相册集合
++(photoAlbumArr*)getDefaultAlbumArrs
+{
+    photoAlbumArr * arr = [photoAlbumArr objectsWhere:@"userid = 'default'"];
+    if(arr==nil){
+        arr = [[photoAlbumArr alloc]init];
+        photoAlbum * album = [photoAlbum objectsWhere:@"albumname ='默认相册'"];
+        if(album==nil){
+            album = [[Album alloc]init];
+            album.holderImg = @"44A3762B66A4B5F1BB51533A00B96114";
+            album.albumName=@"默认相册";
+            RLMRealm *realm = [RLMRealm defaultRealm];
+            [[realm transactionWithBlock:^{
+                [realm addObject:album];
+            }];
+             
+             }
+             arr.ueserId = "default";
+             [arr.albumArrs addObject:album];
+             RLMRealm *realm = [RLMRealm defaultRealm];
+             [realm transactionWithBlock:^{
+                [realm addObject:arr];
+            }];
+             }
+             
+             return arr;
+             
+             }
+
 
 
 #pragma mark 覆盖隐藏tableview多余横线
-+(void)setExtraCellLineHidden:(UITableView*)tableview{
++(void)setExtraCellLineHidden:(UITableView*)tableview
+            {
     UIView * view = [[UIView alloc]init];
     [view setBackgroundColor:[UIColor clearColor]];
     [tableview setTableFooterView:view];

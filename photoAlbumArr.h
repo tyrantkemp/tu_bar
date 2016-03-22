@@ -9,7 +9,8 @@
 #import <Realm/Realm.h>
 #import "photoAlbum.h"
 @interface photoAlbumArr : RLMObject
-@property RLMArray<photoAlbum> albumArrs;
+@property RLMArray<photoAlbum>* albumArrs;
+@property NSString * ueserId;
 @end
 
 // This protocol enables typed collections. i.e.:

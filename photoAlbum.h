@@ -10,7 +10,6 @@
 
 @interface photoAlbum : RLMObject
 @property NSString * albumName;
-@property NSString* holderImg;
 @property NSString* imgIds;
 @end
 // This protocol enables typed collections. i.e.:

@@ -7,11 +7,11 @@
 #import "mainViewController.h"
 #import "UIImageView+WebCache.h"
 #import "ASIHTTPRequestDelegate.h"
-#import "Album.h"
-#import "AlbumArr.h"
+#import "photoAlbum.h"
+#import "photoAlbumArr.h"
 
-#import "PTInfo.h"
-#import "PTInfoList.h"
+//#import "PTInfo.h"
+//#import "PTInfoList.h"
 /***************************************************************************
  *
  * 工具类
@@ -80,9 +80,9 @@
                 completionBlock:(void (^)(NSURL* url))completionBlock
                    failureBlock:(void (^)(NSError *error))failureBlock;
 
+#pragma mark - 获取/创建(默认)个人相册集合
++(photoAlbumArr*)getDefaultAlbumArrs;
 
-#pragma mark - 获取/创建(默认)个人相册
-+(AlbumArr*)getAllAlbums;
 #pragma mark - 获取服务器当前用户的相册信息
 +(NSString*)getAlbumInfoFromServerByUserName:(NSString*)username;
 
