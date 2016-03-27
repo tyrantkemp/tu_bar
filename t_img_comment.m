@@ -1,21 +1,21 @@
 //
-//  photoAlbum.m
+//  t_sys_comment.m
 //  tu_bar
 //
-//  Created by 肖准 on 16/3/18.
+//  Created by 肖准 on 16/3/26.
 //  Copyright © 2016年 肖准. All rights reserved.
 //
 
-#import "photoAlbum.h"
+#import "t_img_comment.h"
 
-@implementation photoAlbum
+@implementation t_img_comment
 
 // Specify default values for properties
 
-+ (NSDictionary *)defaultPropertyValues
-{
-    return @{@"albumName":@"",@"holderImg":@"",@"imgIds":@""};
-}
+//+ (NSDictionary *)defaultPropertyValues
+//{
+//    return @{};
+//}
 
 // Specify properties to ignore (Realm won't persist these)
 

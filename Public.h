@@ -20,6 +20,12 @@
 #import "RegisterUser.h"
 
 
+//第三方工具文件
+#import <AFNetworking.h>
+#import <UIKit+AFNetworking.h>
+#import <Realm/Realm.h>
+#import <Realm+JSON/RLMObject+JSON.h>
+
 //debug开关
 #define ISDEBUG 1
 /**   App常量 **/

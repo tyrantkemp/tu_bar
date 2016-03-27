@@ -1,14 +1,14 @@
 //
-//  photoAlbumArr.m
+//  t_sys_album.m
 //  tu_bar
 //
-//  Created by 肖准 on 16/3/18.
+//  Created by 肖准 on 16/3/26.
 //  Copyright © 2016年 肖准. All rights reserved.
 //
 
-#import "photoAlbumArr.h"
+#import "t_sys_album.h"
 
-@implementation photoAlbumArr
+@implementation t_sys_album
 
 // Specify default values for properties
 
@@ -23,5 +23,7 @@
 //{
 //    return @[];
 //}
-
++(NSString*)primaryKey{
+    return @"albumId";
+}
 @end

@@ -16,7 +16,7 @@
         self.auther=@"";
         self.des=@"";
         self.index=0;;
-         self.othercomments=[[NSMutableArray<MOOtherComments> alloc]init];
+        self.othercomments=[[NSMutableArray<MOOtherComments> alloc]init];
         MOOtherComments* othercomment = [[MOOtherComments alloc]init];
         [self.othercomments addObject:othercomment];
         

@@ -24,6 +24,9 @@ static BOOL RYLogin = false;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    //发起请求和终止请求时都会自动显示和隐藏状态提示
+    [[AFNetworkActivityIndicatorManager sharedManager] setEnabled:YES];
+
     // Override point for customization after application launch.
 //    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 //    self.window.backgroundColor = [UIColor blackColor];
