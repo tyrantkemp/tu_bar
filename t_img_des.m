@@ -6,9 +6,9 @@
 //  Copyright © 2016年 肖准. All rights reserved.
 //
 
-#import "t_img_comment.h"
+#import "t_img_des.h"
 
-@implementation t_img_comment
+@implementation t_img_des
 
 // Specify default values for properties
 

@@ -8,7 +8,7 @@
 
 #import <Realm/Realm.h>
 
-@interface t_img_comment : RLMObject
+@interface t_img_des : RLMObject
 @property long imgId;
 @property long authId;
 @property NSInteger top; //点赞数
@@ -20,4 +20,4 @@
 
 // This protocol enables typed collections. i.e.:
 // RLMArray<t_sys_comment>
-RLM_ARRAY_TYPE(t_img_comment)
+RLM_ARRAY_TYPE(t_img_des)
