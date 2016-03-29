@@ -27,6 +27,6 @@
 
 
 +(NSDictionary*)defaultPropertyValues{
-    return @{@"createtime":[NSDate date] };
+    return @{@"createtime":[NSDate date],@"delFlag":@0 };
 }
 @end

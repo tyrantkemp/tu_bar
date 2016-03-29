@@ -106,22 +106,27 @@
 
 +(BOOL)isVerified:(NSString*)username pwd:(NSString*)password{
     
-    ASIFormDataRequest *formDataRequest=[ASIFormDataRequest requestWithURL:[NSURL URLWithString:@"http://tyrantkemp.imwork.net:21848/test1/app/verify"]];
-    [formDataRequest setPostValue:username forKey:@"username"];
-    [formDataRequest setPostValue:password forKey:@"password"];
-    [formDataRequest setDelegate:self];
-    //    [formDataRequest setDidFinishSelector:@selector(urlRequestSucceeded:)];
-    //    [formDataRequest setDidFailSelector:@selector(urlRequestFailed:)];
-    [formDataRequest startSynchronous];
-    NSString* respstr = [formDataRequest responseString];
+    __block isPass = NO;
+    
+    AFHTTPSessionManager * managr = [AFHTTPSessionManager manager];
+    [managr POST:VERIFY_URL parameters:@{@"password":password,@"username":username} progress:^(NSProgress * _Nonnull uploadProgress) {
+        
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+       
+        NSString* result = (NSString*)responseObject;
+        if([result isEqualToString:@"true"]){
+            return YES;
+        }else
+            return NO;
+        
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSLog(@"login error:%@",error);
+        
+        return  NO;
+    }];
     
     
-    if([respstr isEqualToString:@"true"]){
-        return YES;
-    }else if([respstr isEqualToString:@"false"]){
-        return NO;
-    }
-    return NO;
+  
 }
 +(ICSDrawerController*)getICSDrawer{
     UIStoryboard *stryBoard=[UIStoryboard storyboardWithName:@"Main" bundle:nil];

@@ -7,7 +7,6 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "RegisterUser.h"
 #import "leftmenuTableViewController.h"
 #import "mainViewController.h"
 #import "TopNavBar.h"

@@ -324,70 +324,63 @@
 - (void)registerBtnClicked:(id)sender{
     
     
-//    if (!_isRead) {
-//        [Utils alertTitle:@"提示" message:@"请勾选阅读协议选项框" delegate:nil cancelBtn:@"确定" otherBtnName:nil];
-//    }else{
-    
-        if ([self checkValidityTextField]) {
+    if ([self checkValidityTextField]) {
+        
+        
+        self.registerTableView.userInteractionEnabled=NO;
+        
+        t_sys_user *user= [[t_sys_user alloc] init ];
+        
+        NSString* password=[(UITextField *)[self.view viewWithTag:Tag_TempPasswordTextField] text];
+        NSString* encrpepwd=[password md5Encrypt];
+        NSLog(@"md5加密后:%@",[Utils md5:encrpepwd]);
+        
+        user.username =[(UITextField *)[self.view viewWithTag:Tag_AccountTextField] text];
+        user.mail=[(UITextField *)[self.view viewWithTag:Tag_EmailTextField] text];
+        
+        
+        
+        
+        
+        
+        
+        user.password=[Utils md5:encrpepwd];
+        
+        
+        
+        AFHTTPSessionManager * manager  = [AFHTTPSessionManager manager];
+        [manager POST:REGISTER_URL parameters:[user JSONDictionary] constructingBodyWithBlock:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            NSDictionary* dict = responseObject[@"register"];
+            NSString* status = [dict objectForKey:@"status"];
+            NSString* errMsg = [dict objectForKey:@"errorMsg"];
             
-//            [Utils alertTitle:@"提示" message:@"资料填写完整可以进行注册请求" delegate:nil cancelBtn:@"确定" otherBtnName:nil];
-            //
-            self.registerTableView.userInteractionEnabled=NO;
-           // [ProgressHUD show:@"正在注册中"];
-            RegisterUser* user=[[RegisterUser alloc]init];
-            user.mail=[(UITextField *)[self.view viewWithTag:Tag_EmailTextField] text];
-            user.username=[(UITextField *)[self.view viewWithTag:Tag_AccountTextField] text];
-            user.isAutoLogin=YES;
-            NSString* password=[(UITextField *)[self.view viewWithTag:Tag_TempPasswordTextField] text];
-            NSString* encrpepwd=[password md5Encrypt];
-            NSLog(@"md5加密后:%@",[Utils md5:encrpepwd]);
-            user.password=[Utils md5:encrpepwd];
-            NSString* userjsonstr=[user toJSONString];
-            NSLog(@"上传的数据：%@",userjsonstr);
-            ASIFormDataRequest *formDataRequest=[ASIFormDataRequest requestWithURL:[NSURL URLWithString:REGISTER_URL]];
-            [formDataRequest setPostValue:user.username forKey:@"username"];
-            [formDataRequest setPostValue:user.mail forKey:@"mail"];
-            [formDataRequest setPostValue:user.password forKey:@"password"];
-            [formDataRequest setDelegate:self];
-            [formDataRequest setDidFinishSelector:@selector(urlRequestSucceeded:)];
-            [formDataRequest setDidFailSelector:@selector(urlRequestFailed:)];
-            [formDataRequest startSynchronous];
-            NSString* resutl = [formDataRequest responseString];
-            NSLog(@"responce is %@",[formDataRequest responseString]);
-            
-            if([resutl isEqualToString:@"true"]){
+            if(status && [status isEqualToString:@"200"]){
                 [ProgressHUD showSuccess:@"注册成功"];
-                
                 
                 UIStoryboard *stryBoard=[UIStoryboard storyboardWithName:@"Main" bundle:nil];
                 leftmenuTableViewController* left=[stryBoard instantiateViewControllerWithIdentifier:@"left"];
                 mainViewController* ma=[stryBoard instantiateViewControllerWithIdentifier:@"tab"];
                 ICSDrawerController *drawer = [[ICSDrawerController alloc] initWithLeftViewController:left
                                                                                  centerViewController:ma];
-              
-                
-                
                 
                 [Utils UserDefaultSetValue:user.username forKey:USER_NAME];
                 [Utils UserDefaultSetValue:user.mail forKey:USER_MAIL];
                 [Utils UserDefaultSetValue:user.password forKey:USER_PWD];
-                [Utils UserDefaultSetValue:[NSNumber numberWithBool:user.isAutoLogin] forKey:USER_ISLOGIN];
-                
-                
-               
-                [self presentViewController:drawer animated:YES completion:^{
-                    
-                } ];
-                
-                
-            }else if([resutl isEqualToString:@"false"]){
+            }else  if([status isEqualToString:@"301"]){
                 [ProgressHUD showError:@"用户名重复"];
                 [(UITextField *)[self.view viewWithTag:Tag_AccountTextField]setText:@""];
-
                 [(UITextField *)[self.view viewWithTag:Tag_AccountTextField]becomeFirstResponder];
                 self.registerTableView.userInteractionEnabled=YES;
-                 }
-   //     }
+            }else if([status isEqualToString:@"300"]){
+                [ProgressHUD showError:[ NSString stringWithFormat:@"服务器错误:%@",errMsg]];
+            }
+            
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            NSLog(@"注册失败:%@",error);
+        }];
+        
+        
+        
     }
 }
 -(void)progressstop{

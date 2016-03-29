@@ -78,8 +78,7 @@ static BOOL RYLogin = false;
     NSLog(@"user=%@,pwd=%@",username,pwd);
     LoginViewController* login =[[LoginViewController alloc]init];
     if(ISDEBUG==1){
-        [Utils getDefaultAlbumArrs];
-         NSString* albumjsonstr = [Utils getAlbumInfoFromServerByUserName:username];
+       //  NSString* albumjsonstr = [Utils getAlbumInfoFromServerByUserName:username];
        // [Utils UserDefaultSetValue:albumjsonstr forKey:USER_ALBUMS];
         self.window.rootViewController=login;
         return  YES;

@@ -30,120 +30,78 @@ static const int TXHEIGHT= 100;
 
 @implementation LoginViewController
 -(void)regiditbtn:(UIButton*)sender{
-  
+    
     RegisterViewController* ctl=[[RegisterViewController alloc]init];
     
-[self presentViewController:ctl animated:YES completion:^{
-    
-}];
+    [self presentViewController:ctl animated:YES completion:^{
+        
+    }];
  
     
 }
-//-(void)loginsucess{
-//    
-//    UIStoryboard *stryBoard=[UIStoryboard storyboardWithName:@"Main" bundle:nil];
-//    leftmenuTableViewController* left=[stryBoard instantiateViewControllerWithIdentifier:@"left"];
-//    mainViewController* ma=[stryBoard instantiateViewControllerWithIdentifier:@"tab"];
-//    ICSDrawerController *drawer = [[ICSDrawerController alloc] initWithLeftViewController:left
-//                                                                     centerViewController:ma];
-//    NSDictionary * userdict = [Utils UserDefaultGetValueByKey:USER_INFO];
-//    RegisterUser * user = [[RegisterUser alloc]initWithDictionary:userdict error:nil];
-//    user.isAutoLogin=YES;
-//    [Utils UserDefaultSetValue:[user toDictionary] forKey:USER_INFO];
-//    [UIApplication sharedApplication].keyWindow.rootViewController=drawer;
-//    
-//    
-//}
+
 
 - (void)login:(UIButton *)sender {
- 
     
+    //{"login":{"id":"0001","status":"OK","errorMsg":""}}
+
     //此处用户名密码都为空时可登陆，方便测试
     NSLog(@"login");
-//    NSString* password=[[NSString alloc]init];
-//    NSString* user = self.TFuser.text;
-//    NSString* sql = [[NSString alloc]initWithFormat:@"select password from t_user where username='%@';",user ];
+    NSString* password=self.TFpwd.text;
+    NSString* username = self.TFuser.text;
     
-//    FMResultSet* resultset=[self.db executeQuery:sql];
-//    while ([resultset next]) {
-//        password  = [resultset stringForColumn:@"password"];
-//        
-//    }
-//    NSLog(@"password:%@",password);
-    NSString* pwd=self.TFpwd.text;
-    if([pwd isEqualToString:@"123"]){
-
-        //登陆成功，则修改默认用户名密码
-        [Utils UserDefaultSetValue:self.TFuser.text forKey:USER_NAME];
-        [Utils UserDefaultSetValue:self.TFpwd.text forKey:USER_PWD];
-        [Utils setAutoLogin:YES];
+    AFHTTPSessionManager * managr = [AFHTTPSessionManager manager];
+    [managr POST:VERIFY_URL parameters:@{@"password":password,@"username":username} progress:^(NSProgress * _Nonnull uploadProgress) {
         
-        //进入主界面
-        UIStoryboard *stryBoard=[UIStoryboard storyboardWithName:@"Main" bundle:nil];
-        leftmenuTableViewController* left=[stryBoard instantiateViewControllerWithIdentifier:@"left"];
-        mainViewController* ma=[stryBoard instantiateViewControllerWithIdentifier:@"tab"];
-        ICSDrawerController *drawer = [[ICSDrawerController alloc] initWithLeftViewController:left
-                                                                         centerViewController:ma];
-        [self presentViewController:drawer animated:YES completion:^{
+    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        
+        NSDictionary* dict = responseObject[@"login"];
+        NSString* status = [dict objectForKey:@"status"];
+        NSString* erorMsg = [dict objectForKey:@"errorMsg"];
+        
+        if([status isEqualToString:@"200"]){
+            
+            //登陆成功，则修改默认用户名密码
+            [Utils UserDefaultSetValue:self.TFuser.text forKey:USER_NAME];
+            [Utils UserDefaultSetValue:self.TFpwd.text forKey:USER_PWD];
             [Utils setAutoLogin:YES];
-            [self.TFuser setText:@""];
-            [self.TFpwd setText:@""];
-        } ];
+            
+            //进入主界面
+            UIStoryboard *stryBoard=[UIStoryboard storyboardWithName:@"Main" bundle:nil];
+            leftmenuTableViewController* left=[stryBoard instantiateViewControllerWithIdentifier:@"left"];
+            mainViewController* ma=[stryBoard instantiateViewControllerWithIdentifier:@"tab"];
+            ICSDrawerController *drawer = [[ICSDrawerController alloc] initWithLeftViewController:left
+                                                                             centerViewController:ma];
+            [self presentViewController:drawer animated:YES completion:^{
+                [Utils setAutoLogin:YES];
+                [self.TFuser setText:@""];
+                [self.TFpwd setText:@""];
+            } ];
+            
+            
+        }else if([status isEqualToString:@"300"]){
+            
+            [ProgressHUD showError:@"用户名或密码错误"];
+            
+            
+        }else {
+            [ProgressHUD showError:@"服务器出错"];
+
+        }
         
-    }else {
-        NSLog(@"login failed...");
-    }
+        
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+        NSLog(@"login error:%@",error);
+        
+    }];
+    
+
 }
-//
-//-(void)viewWillAppear:(BOOL)animated{
-//    [super viewWillAppear:animated];
-//    NSDictionary * userdict = [Utils UserDefaultGetValueByKey:USER_INFO];
-//    RegisterUser * user = [[RegisterUser alloc]initWithDictionary:userdict error:nil];
-//    LoginViewController* login =[[LoginViewController alloc]init];
-//    UIStoryboard *stryBoard=[UIStoryboard storyboardWithName:@"Main" bundle:nil];
-//    leftmenuTableViewController* left=[stryBoard instantiateViewControllerWithIdentifier:@"left"];
-//    mainViewController* ma=[stryBoard instantiateViewControllerWithIdentifier:@"tab"];
-//    ICSDrawerController *drawer = [[ICSDrawerController alloc] initWithLeftViewController:left
-//                                                                     centerViewController:ma];
-//    
-//    self.autologin=user.isAutoLogin;
-////    if(user.isAutoLogin){
-////        NSLog(@"自动登陆");
-////        //载入加载视图，同步提交服务器验证用户名和密码
-////
-////    }
-//
-//}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-//    NSString* dbpath=@"/Users/tyrantxz/Desktop/db/xzlogin_db.sqlite";
-//    //打开数据库
-//    FMDatabase* db = [FMDatabase databaseWithPath:dbpath];
-//    if([db open]){
-//        NSLog(@"数据库打开成功");
-//        self.db=db;
-//    }
- 
-    
-       //[Utils createAlbumInPhoneAlbumwithName:@"图吧相册"];
-      // [Utils saveImgtoAlbum:[UIImage imageNamed:@"huajie1.png"]];
-//    dispatch_semaphore_t seme = dispatch_semaphore_create(0);
-//    __block NSURL * url = nil;
-//    
-//    dispatch_async(dispatch_queue_create("test", NULL), ^(void){
-//        [Utils saveImgtoAlbum:[UIImage imageNamed:@"huajie_big.png"] res:^(NSURL *imgurl) {
-//            url=imgurl;
-//            NSLog(@"NSURL block:%@",url);
-//            dispatch_semaphore_signal(seme);
-//        }];
-//    });
-//   
-//    dispatch_semaphore_wait(seme, DISPATCH_TIME_FOREVER);
-//    NSLog(@"NSURL:%@",url);
-//    [Utils saveImgtoAlbum:[UIImage imageNamed:@"huajie_big.png"] com:^(NSURL *url) {
-//        NSLog(@"123123131233");
-//    }];
+
 
     
         NSLog(@"非自动登陆");

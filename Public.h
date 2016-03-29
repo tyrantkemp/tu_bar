@@ -54,6 +54,7 @@
 
 #define USER_INFO @"userinfo"
 #define REGISTER_URL @"http://tyrantkemp.imwork.net:21848/imgServ/app/register"
+#define VERIFY_URL  @"http://tyrantkemp.imwork.net:21848/imgServ/app/verify"
 #define UPLOAD_PICS_URL @"http://tyrantkemp.imwork.net:21848/imgServ/app/uploadfile"
 #define URL_GETALBUMINFO @"http://tyrantkemp.imwork.net:21848/imgServ/app/getalbuminfo"
 #define URL_UPLOADALBUMINFO @"http://tyrantkemp.imwork.net:21848/imgServ/app/savealbuminfo"
