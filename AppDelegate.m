@@ -17,28 +17,15 @@ static BOOL RYLogin = false;
 @end
 
 @implementation AppDelegate
--(void)login{
+-(void)enterMain{
     ICSDrawerController* drawer =[Utils getICSDrawer];
     self.window.rootViewController=drawer;
-
+    
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     //发起请求和终止请求时都会自动显示和隐藏状态提示
     [[AFNetworkActivityIndicatorManager sharedManager] setEnabled:YES];
-
-    // Override point for customization after application launch.
-//    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-//    self.window.backgroundColor = [UIColor blackColor];
-
-//    self.window.rootViewController = drawer;
-//    [self.window makeKeyAndVisible];
-//    NSDictionary * userdict = [Utils UserDefaultGetValueByKey:USER_INFO];
-//    RegisterUser * user = [[RegisterUser alloc]initWithDictionary:userdict error:nil];
-//
-    
-   
-    
     [[RCIM sharedRCIM] initWithAppKey:RONGCLOUD_IM_APPKEY];
     [self RYLogin];
     
@@ -69,47 +56,48 @@ static BOOL RYLogin = false;
     
     
     [[RCIM sharedRCIM] setConnectionStatusDelegate:self];
-    
-    //`````````````````````````````````````````//
-    
     BOOL isAutoLogin = [[Utils UserDefaultGetValueByKey:USER_ISLOGIN] boolValue];
     NSString* username= [Utils UserDefaultGetValueByKey:USER_NAME];
     NSString* pwd= [Utils UserDefaultGetValueByKey:USER_PWD];
     NSLog(@"user=%@,pwd=%@",username,pwd);
+    
     LoginViewController* login =[[LoginViewController alloc]init];
     if(ISDEBUG==1){
-       //  NSString* albumjsonstr = [Utils getAlbumInfoFromServerByUserName:username];
-       // [Utils UserDefaultSetValue:albumjsonstr forKey:USER_ALBUMS];
         self.window.rootViewController=login;
         return  YES;
     }
     if(isAutoLogin){
         NSLog(@"自动登陆");
-        //载入加载视图，同步提交服务器验证用户名和密码
-        LoginViewController* ctl=[[LoginViewController alloc]init];
-        self.window.rootViewController=ctl;
-       
-
-        if([Utils isVerified:username pwd:pwd] && RYLogin){
-//            self.window.rootViewController=login;
-//            [login presentViewController:drawer animated:NO completion:nil];
-            NSLog(@"登陆成功");
-            //创建默认相册
-            [Utils getDefaultAlbumArrs];
-
-            NSString* albumjsonstr = [Utils getAlbumInfoFromServerByUserName:username];
-           // [Utils UserDefaultSetValue:albumjsonstr forKey:USER_ALBUMS];
-
-          //  [login loginsucess];
-            [self performSelector:@selector(login) withObject:nil afterDelay:1.5];
-        }else {
-            NSLog(@"用户名或密码错误");
-            [ProgressHUD showError:@"用户名或密码错误"];
+        //{"login":{"id":"0001","status":"OK","errorMsg":""}}
+        AFHTTPSessionManager * managr = [AFHTTPSessionManager manager];
+        [managr POST:VERIFY_URL parameters:@{@"password":pwd,@"username":username} progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            
+            NSDictionary* dict = responseObject[@"login"];
+            NSString* status = [dict objectForKey:@"status"];
+            NSString* erorMsg = [dict objectForKey:@"errorMsg"];
+            
+            if([status isEqualToString:@"200"]){
+                //进入主界面
+                [self enterMain];
+            }else if([status isEqualToString:@"300"]){
+                [ProgressHUD showError:@"用户名或密码错误"];
+                self.window.rootViewController=login;
+                
+            }else {
+                [ProgressHUD showError:@"服务器出错"];
+                self.window.rootViewController=login;
+            }
+            
+        } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
+            NSLog(@"登陆失败:%@",error);
             self.window.rootViewController=login;
-        }
+            
+        }];
         
     }else{
         NSLog(@"非自动登陆");
+        self.window.rootViewController=login;
+        
     }
     return YES;
 }
@@ -177,13 +165,13 @@ didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
                               delegate:nil
                               cancelButtonTitle:@"知道了"
                               otherButtonTitles:nil, nil];
-          [alert show];
+        [alert show];
         
         
-//        ViewController *loginVC = [[ViewController alloc] init];
-//        UINavigationController *_navi =
-//        [[UINavigationController alloc] initWithRootViewController:loginVC];
-//        self.window.rootViewController = _navi;
+        //        ViewController *loginVC = [[ViewController alloc] init];
+        //        UINavigationController *_navi =
+        //        [[UINavigationController alloc] initWithRootViewController:loginVC];
+        //        self.window.rootViewController = _navi;
     }
 }
 

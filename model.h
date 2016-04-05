@@ -11,5 +11,6 @@
 #import "t_sys_user.h"
 #import "t_sys_album.h"
 #import "t_img_des.h"
+#import "t_sys_img.h"
 #import "t_img_comment_sub.h"
 #endif /* model_h */

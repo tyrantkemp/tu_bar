@@ -32,40 +32,33 @@ static const int TXHEIGHT= 100;
 -(void)regiditbtn:(UIButton*)sender{
     
     RegisterViewController* ctl=[[RegisterViewController alloc]init];
-    
     [self presentViewController:ctl animated:YES completion:^{
         
     }];
- 
-    
 }
 
 
 - (void)login:(UIButton *)sender {
     
-    //{"login":{"id":"0001","status":"OK","errorMsg":""}}
-
     //此处用户名密码都为空时可登陆，方便测试
     NSLog(@"login");
     NSString* password=self.TFpwd.text;
     NSString* username = self.TFuser.text;
     
+    
+    //{"login":{"id":"0001","status":"OK","errorMsg":""}}
     AFHTTPSessionManager * managr = [AFHTTPSessionManager manager];
-    [managr POST:VERIFY_URL parameters:@{@"password":password,@"username":username} progress:^(NSProgress * _Nonnull uploadProgress) {
-        
-    } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+    [managr POST:VERIFY_URL parameters:@{@"password":password,@"username":username} progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
         
         NSDictionary* dict = responseObject[@"login"];
         NSString* status = [dict objectForKey:@"status"];
         NSString* erorMsg = [dict objectForKey:@"errorMsg"];
         
         if([status isEqualToString:@"200"]){
-            
             //登陆成功，则修改默认用户名密码
             [Utils UserDefaultSetValue:self.TFuser.text forKey:USER_NAME];
             [Utils UserDefaultSetValue:self.TFpwd.text forKey:USER_PWD];
             [Utils setAutoLogin:YES];
-            
             //进入主界面
             UIStoryboard *stryBoard=[UIStoryboard storyboardWithName:@"Main" bundle:nil];
             leftmenuTableViewController* left=[stryBoard instantiateViewControllerWithIdentifier:@"left"];
@@ -78,17 +71,11 @@ static const int TXHEIGHT= 100;
                 [self.TFpwd setText:@""];
             } ];
             
-            
         }else if([status isEqualToString:@"300"]){
-            
             [ProgressHUD showError:@"用户名或密码错误"];
-            
-            
         }else {
             [ProgressHUD showError:@"服务器出错"];
-
         }
-        
         
     } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         NSLog(@"login error:%@",error);
@@ -100,10 +87,6 @@ static const int TXHEIGHT= 100;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-
-
-    
         NSLog(@"非自动登陆");
         //图标右上角红标提醒数量
         float version = [[[UIDevice currentDevice] systemVersion] floatValue];

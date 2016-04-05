@@ -9,10 +9,11 @@
 #import <Realm/Realm.h>
 
 @interface t_sys_album : RLMObject
-@property long albumId;
+@property NSString* albumId;
 @property NSString * albumName;
 @property NSString*  holderImgId;
-@property NSString * imgIds;  //在服务器数据库中以“；”分隔符存在
+
+@property RLMArray<t_sys_img> * imgIds;
 @end
 
 // This protocol enables typed collections. i.e.:

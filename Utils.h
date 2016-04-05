@@ -7,8 +7,6 @@
 #import "mainViewController.h"
 #import "UIImageView+WebCache.h"
 #import "ASIHTTPRequestDelegate.h"
-#import "photoAlbum.h"
-#import "photoAlbumArr.h"
 
 //#import "PTInfo.h"
 //#import "PTInfoList.h"
@@ -56,6 +54,9 @@
 
 +(BOOL)isVerified:(NSString*)username pwd:(NSString*)password;
 
+#pragma mark - 展示主界面
++(void)showMain;
+
 
 +(ICSDrawerController*)getICSDrawer;
 +(void)setAutoLogin:(BOOL)isAutologin;
@@ -81,7 +82,7 @@
                    failureBlock:(void (^)(NSError *error))failureBlock;
 
 #pragma mark - 获取/创建(默认)个人相册集合
-+(photoAlbumArr*)getDefaultAlbumArrs;
++(NSArray<t_sys_album>*)getDefaultAlbumArrs;
 
 #pragma mark - 获取服务器当前用户的相册信息
 +(NSString*)getAlbumInfoFromServerByUserName:(NSString*)username;

@@ -10,17 +10,15 @@
 
 
 @interface t_sys_user : RLMObject
-@property long userId;
+@property NSString* userId;
 @property NSString* mail;
 @property NSString* username;
 @property NSString* password;
 @property NSData *  createtime;
-
 @property NSString* iconImgId;  //头像图片id
 @property NSString* bacgroundImgId;  //背景图片id
-
-@property NSString* myAlbum; //我的相册，服务器端用albumId,以“；”分隔存储
-@property BOOL delFlag;   //是否删除 1：删除 0：未删除
+@property RLMArray<t_sys_album> * albums
+@property NSString* delFlag;   //是否删除 1：删除 0：未删除
 
 @end
 

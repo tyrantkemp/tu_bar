@@ -28,7 +28,16 @@
 {
     return (AppDelegate *)[[UIApplication sharedApplication] delegate];
 }
+#pragma mark - 展示主界面
++(void)showMain{
+    
+    UIStoryboard *stryBoard=[UIStoryboard storyboardWithName:@"Main" bundle:nil];
+    leftmenuTableViewController* left=[stryBoard instantiateViewControllerWithIdentifier:@"left"];
+    mainViewController* ma=[stryBoard instantiateViewControllerWithIdentifier:@"tab"];
+    ICSDrawerController *drawer = [[ICSDrawerController alloc] initWithLeftViewController:left
+                                                            centerViewController:ma];
 
+}
 + (UIImageView *)imageViewWithFrame:(CGRect)frame withImage:(UIImage *)image{
     
     UIImageView *imageView = [[UIImageView alloc] initWithFrame:frame];
@@ -171,58 +180,55 @@
     
     
 }
-#pragma mark - 程序初始化时 根据username获取相册信息 （1.先从服务器获取，如果服务器没有则检查本地，如果本地也没有则创建默认相册）
-+(photoAlbumArr*)getAlbumInfoFromServerByUserName:(NSString*)username{
-    //用户登录时同步获取
-    // NSUserDefaults* userd= [NSUserDefaults standardUserDefaults];
-    // [userd removeObjectForKey:USER_ALBUMS];
-    
-    ASIFormDataRequest* request = [ASIFormDataRequest requestWithURL:[NSURL URLWithString:URL_GETALBUMINFO]];
-    [request setPostValue:username forKey:@"username"];
-    [request startSynchronous];
-    
-    NSString* resstr =[request responseString];
-    
-    //远程服务器有相册信息
-    if(![resstr isEqualToString:@"null"] && resstr!= nil){
-        NSLog(@"远程相册信息:%@",resstr);
-        [Utils UserDefaultSetValue:resstr forKey:USER_ALBUMS];
+#pragma mark - 程序初始化时 根据username获取相册信息 
+/*
+ 
+ */
++(t_sys_album*)getAlbumInfoFromServerByUserName:(NSString*)username{
+
+    AFHTTPSessionManager * manager = [AFHTTPSessionManager manager];
+
+    [manager POST:URL_GETALBUMINFO parameters:@{@"username":username} progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        RLMRealm * realm = [RLMRealm defaultRealm];
+
+        NSArray* albumarr = responseObject[@"albumarr"];
         
+        NSPredicate* predicate = [NSPredicate predicateWithFormat:@"username = %@",username];
+        t_sys_user * user = [t_sys_user objectsWhere:predicate];
         
-    }else{//远程服务器没有相册信息
-        NSLog(@"远程相册信息为空");
-        if([Utils UserDefaultGetValueByKey:USER_ALBUMS]==nil){
+        //服务器和本地都不存在相册信息
+        if( (albumarr==nil || [albumarr count]==0) && (user.myAlbumIds==nil || user.myAlbumIds.length==0)){
+            //创建默认相册信息
+            t_sys_album * alb = [[t_sys_album alloc]init];
+            alb.albumName = @"默认相册";
+            alb.holderImgId = DEFAULT_IMG_ID;
+            user.myAlbumIds=[user append:alb.albumId];
+            //保存至本地数据库
+            [realm transactionWithBlock:^{
+                [t_sys_album createOrUpdateInRealm:realm withValue:alb];
+                [t_sys_user createOrUpdateInRealm:realm withValue:user];
+            }];
             
-            NSString * jsondata = [NSJSONSerialization JSONObjectWithData:[Utils getDefaultAlbumArrs] options:NSJSONReadingMutableLeaves error:nil];
-            NSLog(@"本地相册信息为空,添加默认信息：%@",jsondata);
+        }else if(){ //服务器存在，本地不存在 ，同步到本地
             
-          //  resstr = [[Utils getDefaultAlbumArrs] to];
-            [Utils UserDefaultSetValue:resstr forKey:USER_ALBUMS];
             
-        }else{
-            resstr = [Utils UserDefaultGetValueByKey:USER_ALBUMS];
-            NSLog(@"本地相册存在：%@",resstr);
+            
+        }else if(){ //本地存在，服务器不存在，同步到服务器
+            
+            
+        }else{ // 本地存在，服务器也存在，进行差异同步
+            dispatch_async(dispatch_get_main_queue(), ^{
+                RLMRealm * realm = [RLMRealm defaultRealm];
+                [realm beginWriteTransaction];
+                NSArray* arr = [t_sys_album createOrUpdateInRealm:realm withJSONArray:albumarr];
+                [realm commitWriteTransaction];
+                NSLog(@"下载的相册信息：%@",arr);
+                
+            });
         }
+    } failure:^(NSURLSessionDataTask * _Nullable task, NSError * _Nonnull error) {
         
-        NSData* data = [NSJSONSerialization dataWithJSONObject:resstr options:NSJSONWritingPrettyPrinted error:nil];
-        
-        //本地相册信息异步上传至服务器
-        //AlbumArr* ar=[[AlbumArr alloc]initWithString:resstr error:nil];
-        photoAlbumArr* ar = [[photoAlbumArr alloc]initWithValue:data];
-        [Utils uploadAlbumInfo:ar user:username];
-        
-        
-    }
-    NSError* err = nil;
-    AlbumArr* arr = [[AlbumArr alloc]initWithString:resstr usingEncoding:NSUTF8StringEncoding error:&err];
-    if(err){
-        NSLog(@"albumarr 转化错误：%@",[err localizedDescription]);
-        return nil;
-    }else{
-        return  arr;
-        
-    }
-    
+    }];
     
 }
 #pragma mark 上传更新相册信息

@@ -321,51 +321,68 @@
 }
 
 #pragma mark - RegisterBtnClicked Method
+/*
+ 注册流程：
+
+ 
+ 
+ */
 - (void)registerBtnClicked:(id)sender{
     
     
     if ([self checkValidityTextField]) {
         
         
+        RLMRealm* realm = [RLMRealm defaultRealm];
+        
         self.registerTableView.userInteractionEnabled=NO;
         
-        t_sys_user *user= [[t_sys_user alloc] init ];
-        
+        NSString* username=[(UITextField *)[self.view viewWithTag:Tag_AccountTextField] text];
+        NSString* email=[(UITextField *)[self.view viewWithTag:Tag_EmailTextField] text];
         NSString* password=[(UITextField *)[self.view viewWithTag:Tag_TempPasswordTextField] text];
         NSString* encrpepwd=[password md5Encrypt];
         NSLog(@"md5加密后:%@",[Utils md5:encrpepwd]);
         
-        user.username =[(UITextField *)[self.view viewWithTag:Tag_AccountTextField] text];
-        user.mail=[(UITextField *)[self.view viewWithTag:Tag_EmailTextField] text];
-        
-        
-        
-        
-        
-        
-        
-        user.password=[Utils md5:encrpepwd];
-        
-        
-        
         AFHTTPSessionManager * manager  = [AFHTTPSessionManager manager];
-        [manager POST:REGISTER_URL parameters:[user JSONDictionary] constructingBodyWithBlock:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+        [manager POST:REGISTER_URL parameters:@{@"username":username,@"password":encrpepwd,@"email":email} constructingBodyWithBlock:nil progress:nil success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
+            
             NSDictionary* dict = responseObject[@"register"];
             NSString* status = [dict objectForKey:@"status"];
             NSString* errMsg = [dict objectForKey:@"errorMsg"];
             
             if(status && [status isEqualToString:@"200"]){
                 [ProgressHUD showSuccess:@"注册成功"];
+                NSDictionary* userinfo = [dict objectForKey:@"userInfo"];
                 
-                UIStoryboard *stryBoard=[UIStoryboard storyboardWithName:@"Main" bundle:nil];
-                leftmenuTableViewController* left=[stryBoard instantiateViewControllerWithIdentifier:@"left"];
-                mainViewController* ma=[stryBoard instantiateViewControllerWithIdentifier:@"tab"];
-                ICSDrawerController *drawer = [[ICSDrawerController alloc] initWithLeftViewController:left
-                                                                                 centerViewController:ma];
+                t_sys_user * user = [t_sys_user createOrUpdateInRealm:realm withJSONDictionary:userinfo];
                 
+                [realm transactionWithBlock:^{
+                    [t_sys_user createOrUpdateInRealm:realm withValue:user];
+                }];
                 [Utils UserDefaultSetValue:user.username forKey:USER_NAME];
                 [Utils UserDefaultSetValue:user.mail forKey:USER_MAIL];
                 [Utils UserDefaultSetValue:user.password forKey:USER_PWD];
+                [Utils setAutoLogin:YES];
+                
+                UIImageView* imgeview = [[UIImageView alloc]init];
+                
+                //异步从服务器下载相册图片
+                for(int i=0;i<[user.albums count];++i){
+                    t_sys_album* album =[user.albums objectAtIndex:i];
+                    for (int j=0; j<[album.imgIds count]; ++j) {
+                        t_sys_img* img =[album.imgIds objectAtIndex:j];
+                        
+                        [imgeview setImageWithURLRequest:[URL_GETIMG stringByAppendingString:img.imgId] placeholderImage:nil success:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, UIImage * _Nonnull image) {
+                            NSLog(@"图片下载成功");
+
+                        } failure:^(NSURLRequest * _Nonnull request, NSHTTPURLResponse * _Nullable response, NSError * _Nonnull error) {
+                            NSLog(@"图片下载失败");
+                        } ];
+                    }
+                }
+                
+                 
+                [Utils showMain];
             }else  if([status isEqualToString:@"301"]){
                 [ProgressHUD showError:@"用户名重复"];
                 [(UITextField *)[self.view viewWithTag:Tag_AccountTextField]setText:@""];
@@ -386,27 +403,6 @@
 -(void)progressstop{
     [self dismissViewControllerAnimated:YES completion:nil];
 
-}
--(void)urlRequestFailed:(ASIHTTPRequest *)request
-{
-    NSError *error =[request error];
-    NSLog(@"%@",error);
-    NSLog(@"连接失败！");
-    UIAlertView * alt=[[UIAlertView alloc] initWithTitle:@"提示" message:@"连接服务器失败" delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-    [alt show];
-    self.registerTableView.userInteractionEnabled=YES;
-
-}
-
-//请求成功
--(void)urlRequestSucceeded:(ASIHTTPRequest *)request
-{
-    NSData *data=[request responseData];
-    NSXMLParser *parser=[[NSXMLParser alloc] initWithData:data];
-    NSLog(@"data length = %d",[data length]);
-    NSLog(@"xml data = %@",[[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
-    [parser setDelegate:self];
-    [parser parse];//进入解析
 }
 
 /**

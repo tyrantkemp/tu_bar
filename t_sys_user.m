@@ -23,10 +23,13 @@
 //{
 //    return @[];
 //}
-
-
++(NSString*)primaryKey{
+    return @"userId";
+}
 
 +(NSDictionary*)defaultPropertyValues{
-    return @{@"createtime":[NSDate date],@"delFlag":@0 };
+    return @{@"createtime":[NSDate date],@"delFlag":@"0"};
 }
+
+
 @end
